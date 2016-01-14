@@ -6,8 +6,6 @@
 package atmattempt;
 
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -24,7 +22,7 @@ public class ATMAttempt {
         int n;
         int bal;
         int destAccountID;
-        int amt;
+        int amt = 0;
 
         System.out.println("ATM Attempt!");
         System.out.println("How many accounts? : ");
@@ -43,30 +41,37 @@ public class ATMAttempt {
         System.out.println("Transactions ");
         System.out.println("================");
         for (int i = 0; i < n; i++) {
-            System.out.println("Enter destination account id from account " + i + " (-1 if no transfer) ");
-            destAccountID = sc.nextInt();
-            if (destAccountID < accounts.length) {
-                if (destAccountID != -1) {
-                    System.out.println("Enter transfer amount: ");
-                    amt = sc.nextInt();
-                    clients[i] = new Client(accounts[i], accounts[destAccountID], amt);
+            destAccountID = 0;
+            do {
+                System.out.println("Enter destination account id from account " + i + " (Input own account id or -1 if no transfer) ");
+                destAccountID = sc.nextInt();
+                if (destAccountID < accounts.length) {
+                    if (destAccountID == -1 || destAccountID == i) {
+                        clients[i] = new Client();                      //self transfer
+                    } else {
+                        System.out.println("Enter transfer amount: ");
+                        amt = sc.nextInt();
+                        if (amt <= accounts[i].bal) {
+                            clients[i] = new Client(accounts[i], accounts[destAccountID], amt);
+                        }else{
+                            System.out.println("Insufficient fund");
+                        }
+                    }
                 } else {
-                    clients[i] = new Client();               //self transfer
+                    System.out.println("Invalid destination account ID.");
                 }
-            } else {
-                System.out.println("Invalid destination account ID.");
-            }
+            } while (!checkInput(accounts[i], accounts, amt));
         }
 
-        for (int i = 0; i < clients.length; i++) {
-            clients[i].start();
+        for (Client client : clients) {
+            client.start();
         }
 
         System.out.println("Transferring process is happening...");
 
         try {
-            for (int i = 0; i < clients.length; i++) {
-                clients[i].join();
+            for (Client client : clients) {
+                client.join();
             }
 
             System.out.println("Transaction all done...");
@@ -79,4 +84,11 @@ public class ATMAttempt {
         }
     }
 
+    public static boolean checkInput(Account src, Account[] allAccounts, int amount) {
+        if (src.id >= allAccounts.length || amount <= 0 || amount > src.bal) {
+            System.out.println("Error input");
+            return false;
+        }
+        return true;
+    }
 }

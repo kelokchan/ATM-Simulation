@@ -51,10 +51,10 @@ public class Account {
                     System.out.println(id + " successfully transferred RM" + amt + " to account id " + recipient.id);
                 }
                 return 1;
-            } else {
-                System.out.println(id + " reimbursing ");
-                while (deposit(amt) == 0);
             }
+        } else {
+            System.out.println(id + " reimbursing ");
+            while (deposit(amt) == 0);
         }
         return 0;
     }
