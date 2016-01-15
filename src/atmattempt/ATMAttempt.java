@@ -5,6 +5,8 @@
  */
 package atmattempt;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -16,6 +18,8 @@ public class ATMAttempt {
     /**
      * @param args the command line arguments
      */
+    public Scanner scan = new Scanner(System.in);
+    
     public static void main(String[] args) {
         // TODO code application logic here
         Scanner sc = new Scanner(System.in);
@@ -27,40 +31,42 @@ public class ATMAttempt {
         System.out.println("ATM Attempt!");
         System.out.println("How many accounts? : ");
         n = sc.nextInt();
-        Account[] accounts = new Account[n];
+        ArrayList<Account>accounts = initilizeAccount(n);
         Client[] clients = new Client[n];
-
-        System.out.println("Accounts ");
-        System.out.println("================");
-        for (int i = 0; i < n; i++) {
-            System.out.println("Enter initial balance for account " + i + ":");
-            bal = sc.nextInt();
-            accounts[i] = new Account(i, bal);
+        
+        for(Account account:accounts){
+            System.out.println("Account " + account.id + ":" );
+            if(account.enterPIN()){     //successful PIN
+                showMenu();
+            }else{
+               // accounts.remove(account);                        //delete from list
+            }
+            System.out.println(accounts.size());
         }
 
         System.out.println("Transactions ");
-        System.out.println("================");
+        System.out.println("==========");
         for (int i = 0; i < n; i++) {
             destAccountID = 0;
             do {
                 System.out.println("Enter destination account id from account " + i + " (Input own account id or -1 if no transfer) ");
                 destAccountID = sc.nextInt();
-                if (destAccountID < accounts.length) {
+                if (destAccountID < accounts.size()) {
                     if (destAccountID == -1 || destAccountID == i) {
                         clients[i] = new Client();                      //self transfer
                     } else {
                         System.out.println("Enter transfer amount: ");
                         amt = sc.nextInt();
-                        if (amt <= accounts[i].bal) {
-                            clients[i] = new Client(accounts[i], accounts[destAccountID], amt);
-                        }else{
+                        if (amt <= accounts.get(i).bal) {
+                            clients[i] = new Client(accounts.get(i), accounts.get(destAccountID), amt);
+                        } else {
                             System.out.println("Insufficient fund");
                         }
                     }
                 } else {
                     System.out.println("Invalid destination account ID.");
                 }
-            } while (!checkInput(accounts[i], accounts, amt));
+            } while (!checkInput(destAccountID, accounts.get(i), accounts, amt));
         }
 
         for (Client client : clients) {
@@ -76,19 +82,51 @@ public class ATMAttempt {
 
             System.out.println("Transaction all done...");
 
-            for (int i = 0; i < accounts.length; i++) {
-                System.out.println("Account ID : " + i + " current balance: " + accounts[i].bal);
+            for (int i = 0; i < accounts.size(); i++) {
+                System.out.println("Account ID : " + i + " current balance: " + accounts.get(i).bal);
             }
         } catch (InterruptedException ex) {
 
         }
     }
 
-    public static boolean checkInput(Account src, Account[] allAccounts, int amount) {
-        if (src.id >= allAccounts.length || amount <= 0 || amount > src.bal) {
+    public static ArrayList<Account> initilizeAccount(int count) {
+        ArrayList<Account> accounts = new ArrayList<>();
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Accounts ");
+        System.out.println("================");
+        for (int i = 0; i < count; i++) {
+            System.out.println("Enter initial balance for account " + i + ":");
+            int bal = sc.nextInt();
+            int randomPIN = (int) (Math.random() * 9000) + 1000;
+            Account account = new Account(i, bal, randomPIN);
+            accounts.add(account);
+        }
+
+        for (Account acc : accounts) {
+            acc.showDetails();
+        }
+        return accounts;
+    }
+    
+    public static void showMenu(){
+        System.out.println("Menu");
+        System.out.println("==========");
+        System.out.println("1. Balance enquiry");
+        System.out.println("2. Change PIN");
+        System.out.println("3. Withdraw");
+        System.out.println("4. Deposit");
+        System.out.println("5. Transfer");
+        System.out.println("Input choice 1-6");
+    }
+
+    public static boolean checkInput(int destID, Account src, ArrayList<Account> allAccounts, int amount) {
+        if (destID >= allAccounts.size() || amount < 0 || amount > src.bal) {
             System.out.println("Error input");
             return false;
         }
         return true;
     }
+    
+    
 }

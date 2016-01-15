@@ -5,6 +5,8 @@
  */
 package atmattempt;
 
+import java.util.InputMismatchException;
+import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,11 +18,13 @@ public class Account {
 
     int id;
     int bal;
+    int pin;
     Lock lock = new ReentrantLock();
 
-    public Account(int id, int bal) {
+    public Account(int id, int bal, int pin) {
         this.id = id;
         this.bal = bal;
+        this.pin = pin;
     }
 
     int withdraw(int amt) {
@@ -57,5 +61,40 @@ public class Account {
             while (deposit(amt) == 0);
         }
         return 0;
+    }
+
+    boolean enterPIN() {
+        Scanner sc = new Scanner(System.in);
+        int input;
+        int counter = 0;
+        System.out.println("Enter PIN: ");
+        while (counter < 3) {
+            try {
+                input = sc.nextInt();
+                if (input == pin) {
+                    System.out.println("Welcome to APU ATM");
+                    System.out.println("==========");
+                    return true;
+                } else {
+                    System.out.println("Wrong PIN. Please retry. Failed attempt(s): " + (++counter));
+                }
+            } catch (InputMismatchException e) {
+                counter++;
+                System.out.print("Invalid input. Please reenter: ");
+                sc.nextLine();
+            }
+        }
+        if (counter >= 3) {
+            System.out.println("Too many failed attempt. Exiting");
+        }
+        return false;
+    }
+
+    void showDetails() {
+        System.out.println("ACCOUNT DETAILS: ");
+        System.out.println("ID: " + id);
+        System.out.println("PIN: " + pin);
+        System.out.println("BALANCE: " + bal);
+        System.out.println("");
     }
 }
