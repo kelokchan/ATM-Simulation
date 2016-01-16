@@ -6,6 +6,7 @@
 package atmattempt;
 
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -18,8 +19,6 @@ public class ATMAttempt {
     /**
      * @param args the command line arguments
      */
-    public Scanner scan = new Scanner(System.in);
-    
     public static void main(String[] args) {
         // TODO code application logic here
         Scanner sc = new Scanner(System.in);
@@ -31,17 +30,17 @@ public class ATMAttempt {
         System.out.println("ATM Attempt!");
         System.out.println("How many accounts? : ");
         n = sc.nextInt();
-        ArrayList<Account>accounts = initilizeAccount(n);
+        ArrayList<Account> accounts = initilizeAccount(n);
         Client[] clients = new Client[n];
-        
-        for(Account account:accounts){
-            System.out.println("Account " + account.id + ":" );
-            if(account.enterPIN()){     //successful PIN
-                showMenu();
-            }else{
-               // accounts.remove(account);                        //delete from list
+
+        for (Account account : accounts) {
+            System.out.println("Account " + account.id + ":");
+            if (account.enterPIN()) {     //successful PIN
+                showMenu(account);
+            } else {
+                // accounts.remove(account);                        //delete from list
             }
-            System.out.println(accounts.size());
+
         }
 
         System.out.println("Transactions ");
@@ -108,16 +107,53 @@ public class ATMAttempt {
         }
         return accounts;
     }
-    
-    public static void showMenu(){
-        System.out.println("Menu");
-        System.out.println("==========");
-        System.out.println("1. Balance enquiry");
-        System.out.println("2. Change PIN");
-        System.out.println("3. Withdraw");
-        System.out.println("4. Deposit");
-        System.out.println("5. Transfer");
-        System.out.println("Input choice 1-6");
+
+    public static void showMenu(Account account) {
+        Scanner sc = new Scanner(System.in);
+        String input;
+        do {
+            System.out.println("Menu");
+            System.out.println("==========");
+            System.out.println("1. Balance enquiry");
+            System.out.println("2. Change PIN");
+            System.out.println("3. Withdraw");
+            System.out.println("4. Deposit");
+            System.out.println("5. Transfer");
+            System.out.println("Input choice 1-5");
+            input = sc.next();
+
+            switch (input) {
+                case "1":
+                    account.getBal();
+                    break;
+                case "2":
+                    changePIN(account);
+                    break;
+            }
+            System.out.println("Continue? (y/n): ");
+            input = sc.next();
+        } while (input.toLowerCase().equals("y"));
+    }
+
+    public static void changePIN(Account account) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter new PIN: ");
+        int newPIN;
+        while (true) {
+            try {
+                newPIN = sc.nextInt();
+                if (String.valueOf(newPIN).length() == 4) {
+                    break;
+                } else {
+                    System.out.println("Invalid length of PIN. Re-enter");
+                }
+            } catch (InputMismatchException ex) {
+                System.out.println("Invalid new PIN. Re-enter");
+                sc.nextLine();
+            }
+        }
+        account.pin = newPIN;
+        System.out.println("New PIN is " + account.pin);
     }
 
     public static boolean checkInput(int destID, Account src, ArrayList<Account> allAccounts, int amount) {
@@ -127,6 +163,5 @@ public class ATMAttempt {
         }
         return true;
     }
-    
-    
+
 }

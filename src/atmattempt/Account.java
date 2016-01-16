@@ -20,11 +20,16 @@ public class Account {
     int bal;
     int pin;
     Lock lock = new ReentrantLock();
+    Scanner sc = new Scanner(System.in);
 
     public Account(int id, int bal, int pin) {
         this.id = id;
         this.bal = bal;
         this.pin = pin;
+    }
+
+    void getBal() {
+        System.out.println("Balance: RM" + bal);
     }
 
     int withdraw(int amt) {
@@ -62,9 +67,8 @@ public class Account {
         }
         return 0;
     }
-
+    
     boolean enterPIN() {
-        Scanner sc = new Scanner(System.in);
         int input;
         int counter = 0;
         System.out.println("Enter PIN: ");
@@ -80,7 +84,7 @@ public class Account {
                 }
             } catch (InputMismatchException e) {
                 counter++;
-                System.out.print("Invalid input. Please reenter: ");
+                System.out.print("Invalid input. Please re-enter: ");
                 sc.nextLine();
             }
         }
@@ -94,7 +98,7 @@ public class Account {
         System.out.println("ACCOUNT DETAILS: ");
         System.out.println("ID: " + id);
         System.out.println("PIN: " + pin);
-        System.out.println("BALANCE: " + bal);
+        System.out.println("BALANCE: RM" + bal);
         System.out.println("");
     }
 }
