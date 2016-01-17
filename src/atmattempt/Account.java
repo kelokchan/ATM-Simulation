@@ -9,6 +9,8 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -34,10 +36,23 @@ public class Account {
 
     int withdraw(int amt) {
         if (lock.tryLock()) {
-            System.out.println(id + " withdrew RM" + amt + " from the account.");
-            bal -= amt;
-            lock.unlock();
-            return 1;
+            if (amt <= bal) {
+                try {
+                    System.out.println("Pending bank approval...");
+                    Thread.sleep(1000);
+                    System.out.println(id + " withdrew RM" + amt + " from the account.");
+                    bal -= amt;
+                    lock.unlock();
+                    return 1;
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Account.class.getName()).log(Level.SEVERE, null, ex);
+                    return 0;
+                }
+            }else{
+                System.out.println("Insufficient fund");
+                lock.unlock();
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -67,7 +82,7 @@ public class Account {
         }
         return 0;
     }
-    
+
     boolean enterPIN() {
         int input;
         int counter = 0;

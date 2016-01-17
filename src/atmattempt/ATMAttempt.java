@@ -16,12 +16,10 @@ import java.util.Scanner;
  */
 public class ATMAttempt {
 
-    /**
-     * @param args the command line arguments
-     */
+    public static Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
         // TODO code application logic here
-        Scanner sc = new Scanner(System.in);
         int n;
         int bal;
         int destAccountID;
@@ -56,11 +54,7 @@ public class ATMAttempt {
                     } else {
                         System.out.println("Enter transfer amount: ");
                         amt = sc.nextInt();
-                        if (amt <= accounts.get(i).bal) {
-                            clients[i] = new Client(accounts.get(i), accounts.get(destAccountID), amt);
-                        } else {
-                            System.out.println("Insufficient fund");
-                        }
+                        clients[i] = new Client(accounts.get(i), accounts.get(destAccountID), amt);
                     }
                 } else {
                     System.out.println("Invalid destination account ID.");
@@ -91,7 +85,6 @@ public class ATMAttempt {
 
     public static ArrayList<Account> initilizeAccount(int count) {
         ArrayList<Account> accounts = new ArrayList<>();
-        Scanner sc = new Scanner(System.in);
         System.out.println("Accounts ");
         System.out.println("================");
         for (int i = 0; i < count; i++) {
@@ -109,14 +102,13 @@ public class ATMAttempt {
     }
 
     public static void showMenu(Account account) {
-        Scanner sc = new Scanner(System.in);
         String input;
         do {
             System.out.println("Menu");
             System.out.println("==========");
             System.out.println("1. Balance enquiry");
             System.out.println("2. Change PIN");
-            System.out.println("3. Withdraw");
+            System.out.println("3. Withdrawal");
             System.out.println("4. Deposit");
             System.out.println("5. Transfer");
             System.out.println("Input choice 1-5");
@@ -129,14 +121,22 @@ public class ATMAttempt {
                 case "2":
                     changePIN(account);
                     break;
+                case "3":
+                    int withAmt = withdrawalInput();
+                    account.withdraw(withAmt);
+                    account.getBal();
+                    break;
+                case "4":
+                    int depAmt = depositInput();
+                    account.deposit(depAmt);
+                    account.getBal();
             }
             System.out.println("Continue? (y/n): ");
             input = sc.next();
-        } while (input.toLowerCase().equals("y"));
+        } while (input.equalsIgnoreCase("y"));
     }
 
     public static void changePIN(Account account) {
-        Scanner sc = new Scanner(System.in);
         System.out.println("Enter new PIN: ");
         int newPIN;
         while (true) {
@@ -154,6 +154,64 @@ public class ATMAttempt {
         }
         account.pin = newPIN;
         System.out.println("New PIN is " + account.pin);
+    }
+
+    public static int withdrawalInput() {
+        System.out.println("You may withdraw only in multiples of RM20. Enter amount: ");
+        int amount;
+        while (true) {
+            try {
+                amount = sc.nextInt();
+                if (amount % 20 == 0) {
+                    break;
+                } else {
+                    System.out.println("Invalid amount. Re-enter");
+                }
+            } catch (InputMismatchException ex) {
+                System.out.println("Invalid amount. Re-enter");
+                sc.nextLine();
+            }
+        }
+        return amount;
+    }
+
+    public static int depositInput() {
+        int selection;
+        int amount;
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            try {
+                System.out.println("Select deposit type: ");
+                System.out.println("1. Cash");
+                System.out.println("2. Envelope");
+                selection = sc.nextInt();
+
+                switch (selection) {
+                    case 1:
+                        System.out.println("Enter amount: ");
+                        amount = sc.nextInt();
+                        if (amount > 0) {
+                            return amount;
+                        } else {
+                            System.out.println("Invalid amount.");
+                        }
+                        break;
+                    case 2:
+                        System.out.println("Reading envelope in the dispenser...");
+                        System.out.println("Pending verification from bank. This process may take a few days.");
+                        break;
+
+                    default:
+                        System.out.println("Invalid selection.");
+                        break;
+                }
+                break;
+            } catch (Exception ex) {
+                System.out.println("Invalid input. Re-enter");
+                sc.nextLine();
+            }
+        }
+        return 0;
     }
 
     public static boolean checkInput(int destID, Account src, ArrayList<Account> allAccounts, int amount) {
