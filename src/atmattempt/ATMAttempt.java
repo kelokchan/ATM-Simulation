@@ -7,6 +7,7 @@ package atmattempt;
 
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -35,12 +36,13 @@ public class ATMAttempt {
             clients[i] = new Client();
         }
 
-        for (Account account : accounts) {
+        for (Iterator<Account> i = accounts.iterator(); i.hasNext();) {
+            Account account = i.next();
             System.out.println("Account " + account.id + ":");
             if (account.enterPIN()) {     //successful PIN
                 showMenu(account);
             } else {
-                // accounts.remove(account);                        //delete from list
+                accounts.remove(account);                        //delete from list
             }
         }
 
@@ -258,5 +260,4 @@ public class ATMAttempt {
 //        }
 //        return true;
 //    }
-
 }

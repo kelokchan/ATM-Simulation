@@ -29,8 +29,8 @@ public class Client extends Thread {               //every client handles accoun
 
     @Override
     public void run() {
-        while (srcAccount.transfer(transferAmt, destAccount) == 0);
-
+        if(srcAccount != null)
+            while (srcAccount.transfer(transferAmt, destAccount) == 0);
     }
 
 }
