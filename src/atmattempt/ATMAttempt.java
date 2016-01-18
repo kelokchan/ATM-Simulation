@@ -18,18 +18,22 @@ public class ATMAttempt {
 
     public static Scanner sc = new Scanner(System.in);
 
+    public static ArrayList<Account> accounts;
+    public static Client[] clients;
+
     public static void main(String[] args) {
         // TODO code application logic here
         int n;
-        int bal;
-        int destAccountID;
-        int amt = 0;
 
         System.out.println("ATM Attempt!");
         System.out.println("How many accounts? : ");
         n = sc.nextInt();
-        ArrayList<Account> accounts = initilizeAccount(n);
-        Client[] clients = new Client[n];
+        accounts = initilizeAccount(n);
+        clients = new Client[n];
+
+        for (int i = 0; i < n; i++) {
+            clients[i] = new Client();
+        }
 
         for (Account account : accounts) {
             System.out.println("Account " + account.id + ":");
@@ -38,35 +42,11 @@ public class ATMAttempt {
             } else {
                 // accounts.remove(account);                        //delete from list
             }
-
-        }
-
-        System.out.println("Transactions ");
-        System.out.println("==========");
-        for (int i = 0; i < n; i++) {
-            destAccountID = 0;
-            do {
-                System.out.println("Enter destination account id from account " + i + " (Input own account id or -1 if no transfer) ");
-                destAccountID = sc.nextInt();
-                if (destAccountID < accounts.size()) {
-                    if (destAccountID == -1 || destAccountID == i) {
-                        clients[i] = new Client();                      //self transfer
-                    } else {
-                        System.out.println("Enter transfer amount: ");
-                        amt = sc.nextInt();
-                        clients[i] = new Client(accounts.get(i), accounts.get(destAccountID), amt);
-                    }
-                } else {
-                    System.out.println("Invalid destination account ID.");
-                }
-            } while (!checkInput(destAccountID, accounts.get(i), accounts, amt));
         }
 
         for (Client client : clients) {
             client.start();
         }
-
-        System.out.println("Transferring process is happening...");
 
         try {
             for (Client client : clients) {
@@ -123,13 +103,17 @@ public class ATMAttempt {
                     break;
                 case "3":
                     int withAmt = withdrawalInput();
-                    account.withdraw(withAmt);
-                    account.getBal();
+                    clients[account.id].withdrawalAmt = withAmt;
                     break;
                 case "4":
                     int depAmt = depositInput();
-                    account.deposit(depAmt);
-                    account.getBal();
+                    clients[account.id].depositAmt = depAmt;
+                    break;
+                case "5":
+                    initilizeTransfer(account);
+                    break;
+                default:
+                    System.out.println("Invalid selection");
             }
             System.out.println("Continue? (y/n): ");
             input = sc.next();
@@ -214,12 +198,65 @@ public class ATMAttempt {
         return 0;
     }
 
-    public static boolean checkInput(int destID, Account src, ArrayList<Account> allAccounts, int amount) {
-        if (destID >= allAccounts.size() || amount < 0 || amount > src.bal) {
-            System.out.println("Error input");
-            return false;
+    public static void initilizeTransfer(Account account) {
+        int destAccountID;
+        int amt = 0;
+        destAccountID = 0;
+        while (true) {
+            System.out.println("Enter destination account id from account " + account.id + " (Input own account id or -1 if no transfer) ");
+            try {
+                destAccountID = sc.nextInt();
+                if (destAccountID < accounts.size()) {
+                    if (destAccountID == -1 || destAccountID == account.id) {
+                        //self transfer
+                        break;
+                    } else {
+                        System.out.println("Enter transfer amount: ");
+                        amt = sc.nextInt();
+                        clients[account.id].srcAccount = accounts.get(account.id);
+                        clients[account.id].destAccount = accounts.get(destAccountID);
+                        clients[account.id].transferAmt = amt;
+                        break;
+                    }
+                } else {
+                    System.out.println("Invalid destination account ID.");
+                }
+            } catch (Exception ex) {
+                System.out.println("Invalid input.");
+                sc.nextLine();
+            }
         }
-        return true;
     }
+
+//    public static void initilizeTransfer(Account account) {
+//        int destAccountID;
+//        int amt = 0;
+//        destAccountID = 0;
+//        do {
+//            System.out.println("Enter destination account id from account " + account.id + " (Input own account id or -1 if no transfer) ");
+//            destAccountID = sc.nextInt();
+//            if (destAccountID < accounts.size()) {
+//                if (destAccountID == -1 || destAccountID == account.id) {
+//                    //self transfer
+//                } else {
+//                    System.out.println("Enter transfer amount: ");
+//                    amt = sc.nextInt();
+//                    clients[account.id].srcAccount = accounts.get(account.id);
+//                    clients[account.id].destAccount = accounts.get(destAccountID);
+//                    clients[account.id].transferAmt = amt;
+//                }
+//            } else {
+//                System.out.println("Invalid destination account ID.");
+//            }
+//        } while (!checkInput(destAccountID, accounts.get(account.id), accounts, amt));
+//    }
+//
+//    public static boolean checkInput(int destID, Account src, ArrayList<Account> allAccounts, int amount) {
+//        if (destID >= allAccounts.size() || amount < 0 || amount > src.bal) {
+//            System.out.println("Error input");
+//            return false;
+//        }
+//        return true;
+//    }
 
 }
