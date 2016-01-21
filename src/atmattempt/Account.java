@@ -63,7 +63,7 @@ public class Account {
                 } else {
                     System.out.println("Insufficient fund");
                     lock.unlock();
-                    return 0;
+                    return 1;
                 }
             } else {
                 return 0;

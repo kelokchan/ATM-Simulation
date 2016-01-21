@@ -21,16 +21,20 @@ public class Client extends Thread {               //every client handles accoun
 
     }
 
-    public Client(Account srcAccount, Account destAccount, int transferAmt) {
-        this.srcAccount = srcAccount;
-        this.destAccount = destAccount;
-        this.transferAmt = transferAmt;
-    }
-
+//    public Client(Account srcAccount, Account destAccount, int transferAmt) {
+//        this.srcAccount = srcAccount;
+//        this.destAccount = destAccount;
+//        this.transferAmt = transferAmt;
+//    }
     @Override
     public void run() {
-        if(srcAccount != null)
-            while (srcAccount.transfer(transferAmt, destAccount) == 0);
+        int sum = 0;
+        do {
+            sum = srcAccount.withdraw(withdrawalAmt)
+                    + srcAccount.deposit(depositAmt);
+            if (destAccount != null) {
+                sum += srcAccount.transfer(transferAmt, destAccount);
+            };
+        } while (sum != 3);
     }
-
 }

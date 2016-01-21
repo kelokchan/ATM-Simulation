@@ -29,22 +29,26 @@ public class ATMAttempt {
         System.out.println("ATM Attempt!");
         System.out.println("How many accounts? : ");
         n = sc.nextInt();
-        accounts = initilizeAccount(n);
-        clients = new Client[n];
 
+        clients = new Client[n];
         for (int i = 0; i < n; i++) {
             clients[i] = new Client();
         }
 
-        for (Iterator<Account> i = accounts.iterator(); i.hasNext();) {
-            Account account = i.next();
+        accounts = new ArrayList<>();
+        initilizeAccount(n);
+
+        for (Account account : accounts) {
             System.out.println("Account " + account.id + ":");
             if (account.enterPIN()) {     //successful PIN
                 showMenu(account);
             } else {
-                accounts.remove(account);                        //delete from list
+
             }
         }
+
+        System.out.println("Concurrency starts");
+        System.out.println("==========");
 
         for (Client client : clients) {
             client.start();
@@ -65,8 +69,7 @@ public class ATMAttempt {
         }
     }
 
-    public static ArrayList<Account> initilizeAccount(int count) {
-        ArrayList<Account> accounts = new ArrayList<>();
+    public static void initilizeAccount(int count) {
         System.out.println("Accounts ");
         System.out.println("================");
         for (int i = 0; i < count; i++) {
@@ -75,12 +78,12 @@ public class ATMAttempt {
             int randomPIN = (int) (Math.random() * 9000) + 1000;
             Account account = new Account(i, bal, randomPIN);
             accounts.add(account);
+            clients[i].srcAccount = account;    //initialize each client with account 
         }
 
         for (Account acc : accounts) {
             acc.showDetails();
         }
-        return accounts;
     }
 
     public static void showMenu(Account account) {
@@ -104,7 +107,7 @@ public class ATMAttempt {
                     changePIN(account);
                     break;
                 case "3":
-                    int withAmt = withdrawalInput();
+                    int withAmt = withdrawalInput(account.bal);
                     clients[account.id].withdrawalAmt = withAmt;
                     break;
                 case "4":
@@ -142,17 +145,22 @@ public class ATMAttempt {
         System.out.println("New PIN is " + account.pin);
     }
 
-    public static int withdrawalInput() {
+    public static int withdrawalInput(int bal) {
         System.out.println("You may withdraw only in multiples of RM20. Enter amount: ");
         int amount;
         while (true) {
             try {
                 amount = sc.nextInt();
-                if (amount % 20 == 0) {
-                    break;
-                } else {
-                    System.out.println("Invalid amount. Re-enter");
+                if (amount <= bal) {
+                    if (amount % 20 == 0) {
+                        break;
+                    } else {
+                        System.out.println("Invalid amount. Re-enter");
+                    }
+                }else{
+                    System.out.println("Insufficient fund!");
                 }
+
             } catch (InputMismatchException ex) {
                 System.out.println("Invalid amount. Re-enter");
                 sc.nextLine();
@@ -164,7 +172,6 @@ public class ATMAttempt {
     public static int depositInput() {
         int selection;
         int amount;
-        Scanner sc = new Scanner(System.in);
         while (true) {
             try {
                 System.out.println("Select deposit type: ");
@@ -210,16 +217,14 @@ public class ATMAttempt {
                 destAccountID = sc.nextInt();
                 if (destAccountID < accounts.size()) {
                     if (destAccountID == -1 || destAccountID == account.id) {
-                        //self transfer
-                        break;
                     } else {
                         System.out.println("Enter transfer amount: ");
                         amt = sc.nextInt();
                         clients[account.id].srcAccount = accounts.get(account.id);
                         clients[account.id].destAccount = accounts.get(destAccountID);
                         clients[account.id].transferAmt = amt;
-                        break;
                     }
+                    break;
                 } else {
                     System.out.println("Invalid destination account ID.");
                 }
