@@ -35,15 +35,16 @@ public class Account {
             try {
                 System.out.println("Loading balance");
                 Thread.sleep(1000);
-                System.out.println("Balance: RM" + bal);
+                System.out.println(id + " current balance: RM" + bal);
                 lock.unlock();
-                return bal;
+                return 1;
             } catch (Exception ex) {
+                return 0;
             }
         } else {
             System.out.println("Account is busy. Unable to read balance");
+            return 0;
         }
-        return 0;
     }
 
     int withdraw(int amt) {
@@ -51,7 +52,7 @@ public class Account {
             if (lock.tryLock()) {
                 if (amt <= bal) {
                     try {
-                        System.out.println("Pending bank approval...");
+                        System.out.println(id + " is pending bank approval for withdrawal");
                         Thread.sleep(1000);
                         System.out.println(id + " withdrew RM" + amt + " from the account.");
                         bal -= amt;
@@ -61,7 +62,7 @@ public class Account {
                         return 0;
                     }
                 } else {
-                    System.out.println("Insufficient fund");
+                    System.out.println(id + " has insufficient fund");
                     lock.unlock();
                     return 1;
                 }
@@ -76,10 +77,16 @@ public class Account {
     int deposit(int amt) {
         if (amt != 0) {
             if (lock.tryLock()) {
-                bal += amt;
-                System.out.println(id + " deposited RM" + amt + " into the account.");
-                lock.unlock();
-                return 1;
+                try {
+                    System.out.println(id + " is pending bank approval for deposit");
+                    Thread.sleep(1000);
+                    System.out.println(id + " deposited RM" + amt + " into the account.");
+                    bal += amt;
+                    lock.unlock();
+                    return 1;
+                } catch (InterruptedException ex) {
+                    return 0;
+                }
             } else {
                 return 0;
             }
@@ -91,10 +98,13 @@ public class Account {
     int transfer(int amt, Account recipient) {
         if (withdraw(amt) == 1) {
             if (recipient.deposit(amt) == 1) {
-                if (recipient.id != id) {
+                try {
+                    Thread.sleep(1000);
                     System.out.println(id + " successfully transferred RM" + amt + " to account id " + recipient.id);
+                    return 1;
+                } catch (InterruptedException ex) {
+                    return 0;
                 }
-                return 1;
             } else {
                 System.out.println("Client is busy. " + id + " reimbursing ");
                 while (deposit(amt) == 0);
@@ -110,7 +120,7 @@ public class Account {
         while (counter < 3) {
             try {
                 input = sc.nextInt();
-                if (input == pin) {
+                if (input != pin) {
                     System.out.println("Welcome to APU ATM");
                     System.out.println("==========");
                     return true;

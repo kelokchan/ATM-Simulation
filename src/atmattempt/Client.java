@@ -29,12 +29,17 @@ public class Client extends Thread {               //every client handles accoun
     @Override
     public void run() {
         int sum = 0;
-        do {
-            sum = srcAccount.withdraw(withdrawalAmt)
-                    + srcAccount.deposit(depositAmt);
-            if (destAccount != null) {
-                sum += srcAccount.transfer(transferAmt, destAccount);
-            };
-        } while (sum != 3);
+//        do {
+//            sum = srcAccount.withdraw(withdrawalAmt)
+//                    + srcAccount.deposit(depositAmt);
+//            if (destAccount != null) {
+//                sum += srcAccount.transfer(transferAmt, destAccount);
+//            };
+//        } while (sum != 3);
+        while (srcAccount.withdraw(withdrawalAmt) == 0);
+        while (srcAccount.deposit(depositAmt) == 0);
+        if (destAccount != null) {
+            while (srcAccount.transfer(transferAmt, destAccount) == 0);
+        }
     }
 }
