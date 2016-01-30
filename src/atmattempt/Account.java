@@ -9,8 +9,6 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -33,7 +31,7 @@ public class Account {
     int getBal() {
         if (lock.tryLock()) {
             try {
-                System.out.println("Loading balance");
+                System.out.println(id + " reading balance");
                 Thread.sleep(1000);
                 System.out.println(id + " current balance: RM" + bal);
                 lock.unlock();
@@ -42,7 +40,7 @@ public class Account {
                 return 0;
             }
         } else {
-            System.out.println("Account is busy. Unable to read balance");
+            System.out.println("Client is busy. Unable to read balance");
             return 0;
         }
     }
@@ -72,6 +70,22 @@ public class Account {
         } else {
             return 1;
         }
+    }
+
+    int depositEnvelope() {
+        if (lock.tryLock()) {
+            try {
+                System.out.println("Account " + id + " reading envelope in the dispenser...");
+                Thread.sleep(1000);
+                System.out.println("Evelope is read");
+                System.out.println("Verification from bank required. This process may take a few days.");
+                lock.unlock();
+                return 1;
+            } catch (InterruptedException ex) {
+                return 0;
+            }
+        }
+        return 0;
     }
 
     int deposit(int amt) {
@@ -121,20 +135,20 @@ public class Account {
             try {
                 input = sc.nextInt();
                 if (input != pin) {
+                    System.out.println("====================");
                     System.out.println("Welcome to APU ATM");
-                    System.out.println("==========");
+                    System.out.println("====================");
                     return true;
                 } else {
                     System.out.println("Wrong PIN. Please retry. Failed attempt(s): " + (++counter));
                 }
             } catch (InputMismatchException e) {
-                counter++;
                 System.out.print("Invalid input. Please re-enter: ");
                 sc.nextLine();
             }
         }
         if (counter >= 3) {
-            System.out.println("Too many failed attempt. Exiting");
+            System.out.println("Too many failed attempts!!!");
         }
         return false;
     }
