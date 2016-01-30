@@ -75,9 +75,9 @@ public class Account {
     int depositEnvelope() {
         if (lock.tryLock()) {
             try {
-                System.out.println("Account " + id + " reading envelope in the dispenser...");
+                System.out.println(id + " is reading envelope in the dispenser...");
                 Thread.sleep(1000);
-                System.out.println("Evelope is read");
+                System.out.println("Envelope is read");
                 System.out.println("Verification from bank required. This process may take a few days.");
                 lock.unlock();
                 return 1;

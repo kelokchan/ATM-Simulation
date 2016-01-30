@@ -21,7 +21,7 @@ public class ATMAttempt {
 
     public static Account[] accounts;
     public static Client[] clients;
-    public static ArrayList<Receipt> receiptList;
+    public static ArrayList<Receipt> receiptList = new ArrayList<>();
     public static final String LOCATION = "Bukit Jalil";
 
     public static void main(String[] args) {
@@ -33,7 +33,6 @@ public class ATMAttempt {
 
         accounts = new Account[count];
         clients = new Client[count];
-        receiptList = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
             clients[i] = new Client();
@@ -58,6 +57,11 @@ public class ATMAttempt {
             for (Client client : clients) {
                 client.join();
             }
+
+            for (Client client : clients) {
+                receiptList.addAll(client.getReceipts());
+            }
+
             System.out.println("====================");
             System.out.println("Transaction all done");
             System.out.println("====================");
@@ -103,8 +107,6 @@ public class ATMAttempt {
             System.out.println("Input choice 1-5");
             input = sc.next();
 
-            String timeStamp = new SimpleDateFormat("dd/MM/yy hh:mma").format(Calendar.getInstance().getTime());
-            Receipt receipt = null;
             switch (input) {
                 case "1":
                     clients[account.id].isReadBalance = true;
@@ -122,11 +124,11 @@ public class ATMAttempt {
                     break;
                 case "5":
                     int transAmt = transferInput(account);
+                    clients[account.id].transferAmt = transAmt;
                     break;
                 default:
                     System.out.println("Invalid selection");
             }
-            ATMAttempt.receiptList.add(receipt);
             System.out.println("Continue? (y/n): ");
             input = sc.next();
         } while (input.equalsIgnoreCase("y"));
@@ -275,13 +277,12 @@ public class ATMAttempt {
     }
 
     public static void generateReceipt() {
-        System.out.println(receiptList.size());
         System.out.println("====================");
-        System.out.println("Receipt for all transaction");
+        System.out.println("Receipts for all transaction");
         System.out.println("====================");
         for (Receipt r : receiptList) {
             System.out.println("Receipt no: " + (receiptList.indexOf(r) + 1));
-            System.out.printf("%s, Location: %s, Type: %s, Account ID: %d, Transaction amount: %s, Account balance: %d", r.dateTime, r.machineLocation, r.transactionType, r.accountID, r.transAmount, r.bal);
+            System.out.printf("%s, Location: %s, Type: %s, Account ID: %d, Transaction amount: %s, Account balance: RM%d", r.dateTime, r.machineLocation, r.transactionType, r.accountID, r.transAmount, r.bal);
             System.out.println("");
         }
     }
