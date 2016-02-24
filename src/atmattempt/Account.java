@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author kelok
  */
+
 public class Account {
 
     private int id;
@@ -142,31 +143,31 @@ public class Account {
         return 0;
     }
 
-    boolean enterPIN() {
-        int input;
-        int counter = 0;
-        System.out.println("Enter PIN: ");
-        while (counter < 3) {
-            try {
-                input = sc.nextInt();
-                if (input != pin) {
-                    System.out.println("====================");
-                    System.out.println("Welcome to APU ATM");
-                    System.out.println("====================");
-                    return true;
-                } else {
-                    System.out.println("Wrong PIN. Please retry. Failed attempt(s): " + (++counter));
-                }
-            } catch (InputMismatchException e) {
-                System.out.print("Invalid input. Please re-enter: ");
-                sc.nextLine();
-            }
-        }
-        if (counter >= 3) {
-            System.out.println("Too many failed attempts!!!");
-        }
-        return false;
-    }
+//    boolean enterPIN() {
+//        int input;
+//        int counter = 0;
+//        System.out.println("Enter PIN: ");
+//        while (counter < 3) {
+//            try {
+//                input = sc.nextInt();
+//                if (input != pin) {
+//                    System.out.println("====================");
+//                    System.out.println("Welcome to APU ATM");
+//                    System.out.println("====================");
+//                    return true;
+//                } else {
+//                    System.out.println("Wrong PIN. Please retry. Failed attempt(s): " + (++counter));
+//                }
+//            } catch (InputMismatchException e) {
+//                System.out.print("Invalid input. Please re-enter: ");
+//                sc.nextLine();
+//            }
+//        }
+//        if (counter >= 3) {
+//            System.out.println("Too many failed attempts!!!");
+//        }
+//        return false;
+//    }
 
     //prints the account details after account initialization
     void showDetails() {

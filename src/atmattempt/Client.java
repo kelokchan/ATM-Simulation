@@ -14,6 +14,10 @@ import java.util.Random;
  *
  * @author kelok
  */
+
+//for all the forkers (pun intended), don't just blindly copy, understand how it works! 
+//remember to cite me xD
+
 public class Client extends Thread {               //every client handles account
 
     Account srcAccount;
@@ -48,8 +52,8 @@ public class Client extends Thread {               //every client handles accoun
             System.out.println("Client " + srcAccount.getId() + " experienced network failure. Transaction aborted");
             return;
         }
-        if (pinAttempt <= 3) {
-            if (!hasFailedTrans) {
+        if (pinAttempt <= 3) {          //less than 3 PIN attempts
+            if (!hasFailedTrans) {      //cancel key not pressed
                 if (isReadBalance) {
                     while (srcAccount.balanceInquiry() == 0);
                     generateReceipt("Balance inquiry", "-");
