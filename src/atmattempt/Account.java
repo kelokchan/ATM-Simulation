@@ -5,8 +5,6 @@ package atmattempt;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
@@ -18,9 +16,9 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Account {
 
-    int id;
-    int bal;
-    int pin;
+    private int id;
+    private int bal;
+    private int pin;
     Lock lock = new ReentrantLock();
     Scanner sc = new Scanner(System.in);
 
@@ -30,7 +28,24 @@ public class Account {
         this.pin = pin;
     }
 
-    int getBal() {
+    public int getId() {
+        return id;
+    }
+
+    public int getBal() {
+        return bal;
+    }
+
+    public int getPin() {
+        return pin;
+    }
+    
+    public void setPin(int newPIN){
+        pin = newPIN;
+    }
+
+    //get balance of the account. If lock not acquired, show error message and return 0
+    int balanceInquiry() {
         if (lock.tryLock()) {
             try {
                 System.out.println(id + " reading balance");
@@ -47,24 +62,19 @@ public class Account {
         }
     }
 
+    //if withdraw amt not 0, try to acquire lock and reduce balance, else return 0
     int withdraw(int amt) {
         if (amt != 0) {
             if (lock.tryLock()) {
-                if (amt <= bal) {
-                    try {
-                        System.out.println(id + " is pending bank approval for withdrawal");
-                        Thread.sleep(1000);
-                        System.out.println(id + " withdrew RM" + amt + " from the account.");
-                        bal -= amt;
-                        lock.unlock();
-                        return 1;
-                    } catch (Exception ex) {
-                        return 0;
-                    }
-                } else {
-                    System.out.println(id + " has insufficient fund");
+                try {
+                    System.out.println(id + " is pending bank approval for withdrawal");
+                    Thread.sleep(1000);
+                    System.out.println(id + " withdrew RM" + amt + " from the account.");
+                    bal -= amt;
                     lock.unlock();
                     return 1;
+                } catch (Exception ex) {
+                    return 0;
                 }
             } else {
                 return 0;
@@ -74,6 +84,7 @@ public class Account {
         }
     }
 
+    //if lock acquired, print operation message, balance will not be updated due to pending verification
     int depositEnvelope() {
         if (lock.tryLock()) {
             try {
@@ -90,6 +101,7 @@ public class Account {
         return 0;
     }
 
+    //if amt not 0, try to acquire lock and increment the balance, else return 0
     int deposit(int amt) {
         if (amt != 0) {
             if (lock.tryLock()) {
@@ -111,6 +123,7 @@ public class Account {
         }
     }
 
+    //withdraw from source and depost to recipient, if both are successful, print message, else retry deposit
     int transfer(int amt, Account recipient) {
         if (withdraw(amt) == 1) {
             if (recipient.deposit(amt) == 1) {
@@ -155,6 +168,7 @@ public class Account {
         return false;
     }
 
+    //prints the account details after account initialization
     void showDetails() {
         System.out.println("ACCOUNT DETAILS: ");
         System.out.println("ID: " + id);

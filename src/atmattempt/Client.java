@@ -5,12 +5,9 @@ package atmattempt;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -28,7 +25,7 @@ public class Client extends Thread {               //every client handles accoun
     boolean isEvelopeDep;
     boolean isReadBalance;
     boolean hasFailedTrans;
-    ArrayList<Receipt> clientReceipt;
+    private ArrayList<Receipt> clientReceipt;
     public static final String LOCATION = "Bukit Jalil";
 
     public Client() {
@@ -45,49 +42,46 @@ public class Client extends Thread {               //every client handles accoun
     @Override
     @SuppressWarnings("empty-statement")
     public void run() {
-
-        String timeStamp = new SimpleDateFormat("dd/MM/yy hh:mma").format(Calendar.getInstance().getTime());
-        Receipt r;
         Random rand = new Random();
-
-        if ((rand.nextInt(10) + 1) >= 7) {               //30% chance
-            System.out.println("Client " + srcAccount.id + " experienced hardware failure");
+        int networkFailureRate = rand.nextInt(10) + 1;  //random 1-10
+        if (networkFailureRate > 8) {               //20% chance
+            System.out.println("Client " + srcAccount.getId() + " experienced network failure. Transaction aborted");
             return;
         }
-
         if (pinAttempt <= 3) {
             if (!hasFailedTrans) {
                 if (isReadBalance) {
-                    while (srcAccount.getBal() == 0);
-                    r = new Receipt(timeStamp, LOCATION, "Balance inquiry", srcAccount.id, "-", srcAccount.bal);
-                    clientReceipt.add(r);
+                    while (srcAccount.balanceInquiry() == 0);
+                    generateReceipt("Balance inquiry", "-");
                 }
                 if (isEvelopeDep) {
                     while (srcAccount.depositEnvelope() == 0);
-                    r = new Receipt(timeStamp, LOCATION, "Envelop deposit", srcAccount.id, "Pending", srcAccount.bal);
-                    clientReceipt.add(r);
+                    generateReceipt("Envelope deposit", "Pending");
                 }
                 if (withdrawalAmt != 0) {
                     while (srcAccount.withdraw(withdrawalAmt) == 0);
-                    r = new Receipt(timeStamp, LOCATION, "Withdrawal", srcAccount.id, "RM" + withdrawalAmt, srcAccount.bal);
-                    clientReceipt.add(r);
+                    generateReceipt("Withdrawal", String.valueOf(withdrawalAmt));
                 }
                 if (depositAmt != 0) {
                     while (srcAccount.deposit(depositAmt) == 0);
-                    r = new Receipt(timeStamp, LOCATION, "Deposit", srcAccount.id, "RM" + depositAmt, srcAccount.bal);
-                    clientReceipt.add(r);
+                    generateReceipt("Deposit", String.valueOf(depositAmt));
                 }
                 if (destAccount != null) {
                     while (srcAccount.transfer(transferAmt, destAccount) == 0);
-                    r = new Receipt(timeStamp, LOCATION, "Transfer", srcAccount.id, "RM" + transferAmt, srcAccount.bal);
-                    clientReceipt.add(r);
+                    generateReceipt("Transfer", String.valueOf(transferAmt));
                 }
             } else {
-                System.out.println("Account " + srcAccount.id + " cancelled action. No changes were made into the account.");
+                System.out.println("Account " + srcAccount.getId() + " cancelled action. No changes were made into the account.");
             }
         } else {
-            System.out.println("Account " + srcAccount.id + " has too many failed PIN attempt! Card is permanently retained.");
+            System.out.println("Account " + srcAccount.getId() + " has too many failed PIN attempt! Card is permanently retained.");
         }
+    }
+
+    public void generateReceipt(String transType, String amt) {
+        String timeStamp = new SimpleDateFormat("dd/MM/yy hh:mma").format(Calendar.getInstance().getTime());
+        Receipt r = new Receipt(timeStamp, LOCATION, transType, srcAccount.getId(), "RM" + amt, srcAccount.getBal());
+        clientReceipt.add(r);
     }
 
     public ArrayList<Receipt> getReceipts() {
