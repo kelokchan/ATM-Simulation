@@ -30,8 +30,8 @@ public class ATM {
         System.out.println("~~~~~~~~~~~~~~~");
         System.out.println("How many accounts? : ");
         count = sc.nextInt();
-        
-        if(count <= 1){
+
+        if (count <= 1) {
             System.out.println("Please input more than 1 account in order to demonstrate multithreading properly.");
             System.exit(0);
         }
@@ -92,9 +92,9 @@ public class ATM {
             accounts[i] = account;
             clients[i].srcAccount = account;    //initialize each client with account 
         }
-        
+
         System.out.println(count + " accounts created.");
-        
+
         for (Account acc : accounts) {
             acc.showDetails();
         }
@@ -141,6 +141,7 @@ public class ATM {
         } while (input.equalsIgnoreCase("y"));
     }
 
+    //set scenarios for each clients
     public static void showScenario(Account account) {
 
         int attempt = 0;
@@ -170,6 +171,7 @@ public class ATM {
         }
     }
 
+    //change PIN, can be performed without concurrency
     public static void changePIN(Account account) {
         System.out.println("Enter new PIN: ");
         int newPIN;
@@ -190,6 +192,7 @@ public class ATM {
         System.out.println("New PIN is " + account.getPin());
     }
 
+    //initialize withdrawal
     public static int withdrawalInput(Account account) {
         int selection, amount = 0;
         while (true) {
@@ -247,6 +250,7 @@ public class ATM {
         return amount;
     }
 
+    //initialize deposit
     public static int depositInput(Account account) {
         int selection;
         int amount;
@@ -288,6 +292,7 @@ public class ATM {
         return 0;
     }
 
+    //initialize transfer
     public static int transferInput(Account account) {
         int destAccountID;
         int amt = 0;
@@ -297,7 +302,7 @@ public class ATM {
             try {
                 destAccountID = sc.nextInt();
                 if (destAccountID < accounts.length) {
-                    if (destAccountID == -1 || destAccountID == account.getId()) {
+                    if (destAccountID == -1 || destAccountID == account.getId()) {          //-1 or self transfer
                     } else {
                         System.out.println("Enter transfer amount: ");
                         amt = sc.nextInt();

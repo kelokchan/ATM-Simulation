@@ -14,10 +14,6 @@ import java.util.Random;
  *
  * @author kelok
  */
-
-//for all the forkers (pun intended), don't just blindly copy, understand how it works! 
-//remember to cite me xD
-
 public class Client extends Thread {               //every client handles account
 
     Account srcAccount;
@@ -82,6 +78,7 @@ public class Client extends Thread {               //every client handles accoun
         }
     }
 
+    //generate receipt with transaction type and transaction amount as parameters
     public void generateReceipt(String transType, String amt) {
         String timeStamp = new SimpleDateFormat("dd/MM/yy hh:mma").format(Calendar.getInstance().getTime());
         Receipt r = new Receipt(timeStamp, LOCATION, transType, srcAccount.getId(), "RM" + amt, srcAccount.getBal());
